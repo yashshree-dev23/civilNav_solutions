@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivilNAV | Project Library Module (White-Box Testing)</title>
+<style>
+  :root {
+    --navy: #102b46;
+    --primary: #1677d2;
+    --primary-hover: #105fa9;
+    --cyan: #15b8c9;
+    --bg: #f3f6fa;
+    --white: #ffffff;
+    --text: #20344a;
+    --muted: #64748b;
+    --border: #dce4ed;
+    --green: #16966a;
+    --amber: #b86e00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+  }
+  .container { max-width: 1080px; margin: 0 auto; display: grid; gap: 18px; }
+  .header {
+    background: linear-gradient(115deg, var(--navy), #165978);
+    color: var(--white);
+    padding: 22px 24px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .header h1 { font-size: 20px; }
+  .header p { font-size: 12px; color: #cbdcf0; margin-top: 4px; }
+  .badge-count {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.28);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 5px;
+  }
+  .field input, .field select {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12.5px;
+    background: #fbfcfe;
+    color: var(--text);
+  }
+  .btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--primary);
+    color: var(--white);
+  }
+  .btn:hover { background: var(--primary-hover); }
+  .btn-light {
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--navy);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-light:hover { background: #f8fafc; }
+  .btn-danger {
+    border: 1px solid #fecaca;
+    background: #fff5f5;
+    color: #b42318;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .add-form {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+    gap: 10px;
+    align-items: end;
+    padding: 14px;
+    background: #f8fafd;
+    border: 1px solid #e6edf5;
+    border-radius: 10px;
+    margin-bottom: 18px;
+  }
+  .status-msg {
+    font-size: 12px;
+    margin-bottom: 14px;
+    min-height: 18px;
+    font-weight: 600;
+  }
+  .status-msg.error { color: #b42318; }
+  .status-msg.ok { color: var(--green); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .code {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--primary);
+    background: #eaf4ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .pill { font-size: 10.5px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
+  .pill.Approved { background: #e5f8ef; color: var(--green); }
+  .pill.In\ Review { background: #fff5e5; color: var(--amber); }
+  .pill.Draft { background: #eef2f7; color: #475569; }
+  .card h3 { font-size: 14.5px; color: var(--navy); margin: 8px 0 4px; }
+  .corridor { font-size: 12px; color: #475569; font-weight: 600; }
+  .notes { font-size: 11.5px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .specs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    background: #f8fafd;
+    padding: 9px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+  .specs span { display: block; color: var(--muted); font-size: 10px; }
+  .actions { display: flex; justify-content: space-between; gap: 8px; }
+  @media (max-width: 820px) {
+    .add-form { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <div>
+      <h1>CivilNAV — Project Library Module</h1>
+      <p>Standalone corridor repository with search, status filtering, validation, and CRUD state transitions</p>
+    </div>
+    <div class="badge-count" id="totalBadge">Projects: 0 | Shown: 0</div>
+  </header>
+
+  <section class="panel">
+    <form class="add-form" id="addProjectForm" novalidate>
+      <div class="field">
+        <label for="projTitle">Corridor Title *</label>
+        <input id="projTitle" placeholder="e.g. Nagpur Ring Link">
+      </div>
+      <div class="field">
+        <label for="projOrigin">Start Point *</label>
+        <input id="projOrigin" placeholder="e.g. Hingna">
+      </div>
+      <div class="field">
+        <label for="projDest">End Point *</label>
+        <input id="projDest" placeholder="e.g. Butibori">
+      </div>
+      <div class="field">
+        <label for="projStatus">Status</label>
+        <select id="projStatus">
+          <option value="Draft">Draft</option>
+          <option value="In Review">In Review</option>
+          <option value="Approved">Approved</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">+ Add Corridor</button>
+    </form>
+
+    <div class="toolbar">
+      <div class="filters">
+        <div class="field">
+          <label for="searchInput">Search Keyword</label>
+          <input id="searchInput" placeholder="Code, title, origin, or destination">
+        </div>
+        <div class="field">
+          <label for="statusFilter">Filter by Status</label>
+          <select id="statusFilter">
+            <option value="all">All Statuses</option>
+            <option value="Approved">Approved</option>
+            <option value="In Review">In Review</option>
+            <option value="Draft">Draft</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-light" id="resetDataBtn" type="button">Reset Default Seed</button>
+    </div>
+
+    <div class="status-msg" id="statusMsg" role="status"></div>
+    <div class="grid" id="projectGrid"></div>
+  </section>
+</div>
+
+<script>
+"use strict";
+
+const STORAGE_KEY = "civilnav_wb_library_v1";
+
+const SEED_PROJECTS = [
+  { id: "PRJ-201", title: "Butibori – Wardha Expressway Link", origin: "Butibori", destination: "Wardha", chainage: "46.8 km", status: "Approved", notes: "6-lane alignment study." },
+  { id: "PRJ-202", title: "Hingna – Kalmeshwar Ring Bypass", origin: "Hingna", destination: "Kalmeshwar", chainage: "17.4 km", status: "In Review", notes: "West-flank bypass screening." },
+  { id: "PRJ-203", title: "Umred – Kuhi Agro Corridor", origin: "Umred", destination: "Kuhi", chainage: "19.1 km", status: "Approved", notes: "2-lane shoulder alignment." },
+  { id: "PRJ-204", title: "Kamptee – Mouda River Link", origin: "Kamptee", destination: "Mouda", chainage: "21.5 km", status: "Draft", notes: "Kanhan crossing assessment." }
+];
+
+let items = loadInitialItems();
+
+// White-box testable pure helper: filters items by query and status
+function filterProjects(list, query, status) {
+  const q = String(query || "").trim().toLowerCase();
+  return list.filter(item => {
+    const matchesStatus = status === "all" || item.status === status;
+    if (!matchesStatus) return false;
+    if (!q) return true;
+    return (
+      item.id.toLowerCase().includes(q) ||
+      item.title.toLowerCase().includes(q) ||
+      item.origin.toLowerCase().includes(q) ||
+      item.destination.toLowerCase().includes(q)
+    );
+  });
+}
+
+// White-box testable pure helper: validates new corridor input
+function validateCorridorInput({ title, origin, destination }) {
+  const t = String(title || "").trim();
+  const o = String(origin || "").trim();
+  const d = String(destination || "").trim();
+  if (!t || !o || !d) return { valid: false, error: "Title, Start Point, and End Point are required." };
+  if (o.toLowerCase() === d.toLowerCase()) return { valid: false, error: "Start Point and End Point must be different." };
+  return { valid: true, value: { title: t, origin: o, destination: d } };
+}
+
+function loadInitialItems() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [...SEED_PROJECTS];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length ? parsed : [...SEED_PROJECTS];
+  } catch {
+    return [...SEED_PROJECTS];
+  }
+}
+
+function persistItems() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
+
+function setStatus(text, type = "") {
+  const el = document.querySelector("#statusMsg");
+  el.textContent = text;
+  el.className = "status-msg " + type;
+}
+
+function render() {
+  const query = document.querySelector("#searchInput").value;
+  const status = document.querySelector("#statusFilter").value;
+  const filtered = filterProjects(items, query, status);
+  const grid = document.querySelector("#projectGrid");
+
+  document.querySelector("#totalBadge").textContent =
+    `Projects: ${items.length} | Shown: ${filtered.length}`;
+
+  grid.replaceChildren();
+
+  if (filtered.length === 0) {
+    const p = document.createElement("p");
+    p.className = "notes";
+    p.textContent = "No corridors match the active filter or search query.";
+    grid.append(p);
+    return;
+  }
+
+  filtered.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "card";
+
+    const top = document.createElement("div");
+    top.className = "card-top";
+
+    const code = document.createElement("span");
+    code.className = "code";
+    code.textContent = item.id;
+
+    const pill = document.createElement("span");
+    pill.className = `pill ${item.status}`;
+    pill.textContent = item.status;
+
+    top.append(code, pill);
+
+    const h3 = document.createElement("h3");
+    h3.textContent = item.title;
+
+    const corr = document.createElement("div");
+    corr.className = "corridor";
+    corr.textContent = `${item.origin} → ${item.destination}`;
+
+    const notes = document.createElement("p");
+    notes.className = "notes";
+    notes.textContent = item.notes;
+
+    const specs = document.createElement("div");
+    specs.className = "specs";
+    specs.innerHTML = `<div><span>Chainage</span><strong>${item.chainage}</strong></div><div><span>State</span><strong>${item.status}</strong></div>`;
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const cycleBtn = document.createElement("button");
+    cycleBtn.className = "btn-light";
+    cycleBtn.type = "button";
+    cycleBtn.textContent = "Advance Status";
+    cycleBtn.addEventListener("click", () => {
+      const order = ["Draft", "In Review", "Approved"];
+      const next = order[(order.indexOf(item.status) + 1) % order.length];
+      item.status = next;
+      persistItems();
+      render();
+      setStatus(`${item.id} moved to "${next}".`, "ok");
+    });
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn-danger";
+    delBtn.type = "button";
+    delBtn.textContent = "Delete";
+    delBtn.addEventListener("click", () => {
+      items = items.filter(x => x.id !== item.id);
+      persistItems();
+      render();
+      setStatus(`Deleted ${item.id}.`, "ok");
+    });
+
+    actions.append(cycleBtn, delBtn);
+
+    const bodyWrap = document.createElement("div");
+    bodyWrap.append(top, h3, corr, notes);
+
+    const footWrap = document.createElement("div");
+    footWrap.style.display = "grid";
+    footWrap.style.gap = "10px";
+    footWrap.append(specs, actions);
+
+    card.append(bodyWrap, footWrap);
+    grid.append(card);
+  });
+}
+
+document.querySelector("#addProjectForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const check = validateCorridorInput({
+    title: document.querySelector("#projTitle").value,
+    origin: document.querySelector("#projOrigin").value,
+    destination: document.querySelector("#projDest").value
+  });
+
+  if (!check.valid) {
+    setStatus(check.error, "error");
+    return;
+  }
+
+  const nextNum = 201 + items.length;
+  items.unshift({
+    id: `PRJ-${nextNum}`,
+    title: check.value.title,
+    origin: check.value.origin,
+    destination: check.value.destination,
+    chainage: "15.0 km",
+    status: document.querySelector("#projStatus").value,
+    notes: "Added during module testing."
+  });
+
+  persistItems();
+  e.target.reset();
+  render();
+  setStatus(`Added corridor PRJ-${nextNum}.`, "ok");
+});
+
+document.querySelector("#searchInput").addEventListener("input", render);
+document.querySelector("#statusFilter").addEventListener("change", render);
+
+document.querySelector("#resetDataBtn").addEventListener("click", () => {
+  items = [...SEED_PROJECTS];
+  persistItems();
+  document.querySelector("#searchInput").value = "";
+  document.querySelector("#statusFilter").value = "all";
+  render();
+  setStatus("Library restored to default seed corridors.", "ok");
+});
+
+render();
+</script>
+</body>
+</html>
